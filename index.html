@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width" />
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700italic,700' rel='stylesheet' type='text/css'>
+  
+  <title>God Mother Scratch Off Card</title>
+  <style type="text/css">
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+.scratchpad {
+  width: 450px;
+  height: 800px;
+  border: solid 10px #FFFFFF;
+  margin: 0 auto;
+}
+body {
+    background: #efefef;
+}
+.scratch-container {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: 100%;
+}
+@media only screen and (max-width: 480px) {
+  .scratchpad {width: 400px; height: 711px;} /* Height ko theek kar diya hai */
+  .scratch-container {width: 400px !important;}
+}
+
+@media only screen and (max-width: 450px) {
+  .scratchpad {width: 100%; height: 711px;} /* Choti screens ke liye width 100% rakhein */
+  .scratch-container {width: 100% !important;}
+}
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.try-again-btn,
+.download-btn {
+  background: #FF6B6B;
+  color: #fff;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+  </style>
+
+</head>
+<body>
+
+<div class="scratch-container">
+  <div id="scratchArea" class="scratchpad"></div>
+</div>
+
+<div class="button-container">
+  <button class="try-again-btn" id="tryAgain">Try Again</button>
+  <button class="download-btn" id="downloadBtn">Download</button>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="text/javascript" src="./wScratchPad.min.js"></script>
+
+<script type="text/javascript">
+// 1. Force High Resolution for wScratchPad
+// Isko html2canvas ke scale (3) ke barabar rakhna zaroori hai
+window.devicePixelRatio = 3; 
+
+var bg1 = 'images/back.png';
+var bg2 = 'images/back.png';
+var bg3 = 'images/back.png';
+var bgArray = [bg1, bg2, bg3];
+var selectBG = bgArray[Math.floor(Math.random() * bgArray.length)];
+
+$('#scratchArea').wScratchPad({
+    size: 25,    
+    bg: selectBG,
+    realtime: true, 
+    fg: 'images/front.png',
+    'cursor': 'url("") 5 5, default',
+    scratchMove: function (e, percent) {
+        if (percent > 50) {
+          $('body').removeClass('not-selectable');
+        }
+    }
+});
+
+$('#tryAgain').on('click', function () {
+  $('#scratchArea').wScratchPad('clear');
+  $('#scratchArea').wScratchPad('reset'); 
+});
+
+$('#downloadBtn').on('click', function () {
+  // Try changing button text so user knows it's processing
+  var btn = $(this);
+  var originalText = btn.text();
+  btn.text('Downloading...');
+
+  html2canvas(document.querySelector(".scratchpad"), {
+    scale: 4,                  // Scale ko 4 kar diya hai for extra sharpness
+    backgroundColor: null,     // Transparent background
+    useCORS: true,             // Image cross-origin support
+    allowTaint: true,
+    logging: false,
+    imageTimeout: 0            // Wait till all images are perfectly loaded
+  }).then(canvas => {
+    let link = document.createElement('a');
+    link.download = 'scratch-card-hd.png';
+    // Use 'image/jpeg' with 1.0 quality if PNG is still giving issues, 
+    // but PNG is usually best for text.
+    link.href = canvas.toDataURL('image/png'); 
+    link.click();
+    
+    // Reset button text
+    btn.text(originalText);
+  });
+});
+</script>
+
+</body>
+</html>
